@@ -1,0 +1,210 @@
+/* =====================================================================
+   כפתור 90 השניות · design tokens · כיוון ב "נייר"
+   Source of truth: the screens in ../screens (every value here appears there).
+   Structure: one token set, overridden by age kit (data-age) and by mode (data-mode).
+     <html data-age="child|kid|teen|parent" data-mode="day|night|shelter">
+       child  = 6–12 (default)   kid = 2–5   teen = 13–18   parent = like child, muted
+     Night and shelter apply ONLY to the run (R0–R5) and its end screen.
+     Shelter wins over night (spec §8).
+   Spec 1.5 (§22): phase word, count, breathing plate, --hot. Drawing colors: ../motion/art/art-tokens.css (--art-*).
+   Spec 1.6 (§23): --danger* (the muted red of "למחוק הכל" in the reset dialog, the ONLY red in the app), --select-tint, --tip*.
+   Depth = an opaque "paper edge" under the surface: box-shadow: 0 <edge> 0 <edge-color>.
+   No blurred shadows (one exception: the long-press lift in M1). No red anywhere, except --danger on the one destructive
+   button of the reset dialog (spec 1.6 §23.1 asks for a muted red there).
+   ===================================================================== */
+
+:root {
+  /* ---------- color · 6–12 day (default) ---------- */
+  --ground: #EFE8DA;          /* page background */
+  --paper: #FBF8F1;           /* cards, plates, inputs */
+  --paper-edge: #DCD2BF;      /* the opaque edge under paper */
+  --ink: #2E3836;             /* text 9.9:1 on ground */
+  --ink-2: #5A6461;           /* secondary text 5.0:1 */
+  --stitch: #B3A68E;          /* dotted "remaining" ring, dashed outlines, empty dots */
+  --dash: #9C927F;            /* dashed "new button" outline */
+  --accent: #4A6A8E;          /* primary action, progress ring, selected outline */
+  --accent-edge: #3A5675;
+  --on-accent: #FFFFFF;       /* 5.6:1 */
+  --breath: #C9D8E8;          /* breath element fill */
+  --breath-2: #D7E3EF;
+  --breath-edge: #A3B8CF;
+  --warm: #E2B661;            /* wand, candle flame */
+  --warm-edge: #C29A4A;
+  --hot: #EBA35E;             /* pizza slice at the end of the inhale, cools back on the exhale (1.5 §22.2) */
+  --cue: var(--accent);       /* visual cue that mirrors every vibration */
+  --scrim: rgba(46, 56, 54, 0.46);
+  --placeholder: #D9A46A;     /* mockups only. Spec 1.5 §22.6: no [bracketed] text may remain in the shipped UI */
+  /* NEW 1.6 */
+  --danger: #94493D;          /* "למחוק הכל" (reset) only: label on --danger-tint 5.1:1, white on --danger 6.4:1 */
+  --danger-edge: #D9BFB5;     /* paper edge under the danger button */
+  --danger-tint: #F3E3DD;     /* its resting fill; the long-press fill sweeps --danger over it from the right in 1s */
+  --select-tint: #E6ECF2;     /* W2/W5 selected card fill (+ 3px --accent inset outline + check badge); --ink 10.2:1 */
+  --tip: #F5ECD9;             /* W2 "טיפ להורה" bubble */
+  --tip-icon: #F1E3C4; --tip-icon-edge: #DCC9A2; --tip-icon-ink: #6B5428;
+
+  /* ---------- the 8 button colors (name in --ink on top, ≥5.9:1) ---------- */
+  --btn-1: #9FB8D0; --btn-1-edge: #7E9AB6;
+  --btn-2: #A9C2A0; --btn-2-edge: #88A47F;
+  --btn-3: #E6BE6E; --btn-3-edge: #C7A050;
+  --btn-4: #E3B5A6; --btn-4-edge: #C69686;
+  --btn-5: #BFB2D4; --btn-5-edge: #9F91B8;
+  --btn-6: #92BFB8; --btn-6-edge: #72A198;
+  --btn-7: #CFC487; --btn-7-edge: #B0A566;
+  --btn-8: #C8B29B; --btn-8-edge: #A8917A;
+  /* parent buttons: same 8 colors muted 15% toward --ground (e.g. btn-3 → #D8C595) */
+
+  /* ---------- typography · Assistant only, self-hosted ---------- */
+  --font: 'Assistant', system-ui, sans-serif;
+  --t-sentence: 600 36px/47px var(--font);  /* R2. min 32. shelter 40 */
+  --t-display: 700 34px/41px var(--font);   /* M0 title, R0 name */
+  --t-cue: 600 31px/37px var(--font);       /* R4 "ועכשיו:". shelter 36 ("נושמים" is gone in 1.5) */
+  --t-phase: 700 28px/36px var(--font);     /* R1 phase word "לוקחים אוויר מהאף" / "מוציאים לאט מהפה" (1.5 §22.1). shelter 32 */
+  --t-count: 600 40px/48px var(--font);     /* R1 seconds count under the word; font-variant-numeric: tabular-nums */
+  --t-count-square: 600 48px/58px var(--font); /* count 1–4 in the center of the square */
+  --t-square-label: 500 17px/22px var(--font); /* side labels around the square; the active one 600 + --accent */
+  --t-instr: 700 28px/36px var(--font);     /* R3 instruction line (1.5 §22.5). shelter 32 */
+  --t-title: 700 30px/36px var(--font);     /* wizard + M1 titles */
+  --t-name: 700 25px/30px var(--font);      /* name inside an M1 button */
+  --t-button: 700 21px/28px var(--font);
+  --t-body: 400 19px/28px var(--font);      /* base. spec asks ≥18; Assistant runs small, so 19 */
+  --t-body-strong: 600 19px/28px var(--font);
+  --t-note: 400 17px/25px var(--font);      /* parent line, "אם הכפתור לא עוזר" link */
+  --t-tag: 600 16px/22px var(--font);       /* smallest size anywhere */
+  /* numbers, times, phone numbers and ranges: wrap in dir="ltr" (or unicode-bidi:isolate) */
+
+  /* ---------- space · base 4 ---------- */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px;
+  --s-5: 24px;   /* side margin of every screen (wizard content 24, M1/L1 20) */
+  --s-6: 32px; --s-7: 48px;
+  --touch: 64px; /* minimum hit area, everywhere, including the faint run controls */
+  --edge-gap: 12px; /* icon buttons sit 12px from the screen edge */
+
+  /* ---------- radius · edge thickness pairs ---------- */
+  --r-sm: 8px;   --edge-sm: 2px;
+  --r-md: 12px;  --edge-md: 3px;
+  --r-lg: 16px;  --edge-lg: 4px;
+  --r-pill: 999px; --edge-pill: 4px;
+  --edge-round-m1: 6px;   /* 156px family button */
+  --edge-round-r0: 9px;   /* 224px start button */
+
+  /* ---------- run layout (390×844 reference) ---------- */
+  --ring-box: 340px; --ring-r: 150px; --ring-c: 942.48; --ring-stroke: 5px;
+  --stitch-r: 152px; --stitch-width: 4px; --stitch-dash: 0.5 11.5;
+  --plate: 286px;
+  --plate-min: 0.78;          /* the plate breathes .78 ↔ 1 in R1 (1.5 §22.1); the drawing does not */
+  --art-box: 257px;           /* drawing = 90% of the plate (was 74%) */
+  --run-icon-opacity: 0.7;
+
+  /* ---------- motion ---------- */
+  --ease-breath: cubic-bezier(.45, 0, .55, 1);
+  --ease-press: cubic-bezier(.3, .7, .4, 1);
+  --press-ms: 80ms;
+  --cue-in-ms: 300ms; --cue-out-ms: 900ms; --cue-peak: 0.75;
+  --word-fade-ms: 200ms;      /* phase-word crossfade, CENTERED on the flip (start it 100ms before) */
+  --stage-fade-ms: 400ms;     /* R1→R2→R3→R4 content crossfade */
+}
+
+/* ---------------- 2–5 · "הכפתור של הדובי" ---------------- */
+[data-age="kid"] {
+  --ground: #F4E6CF;
+  --paper: #FFFBF3;
+  --paper-edge: #E2CFAE;
+  --ink: #3B3530;
+  --ink-2: #6A5F55;
+  --stitch: #D3BD96;
+  --dash: #C9B28D;
+  --accent: #2F7A74;
+  --accent-edge: #235E59;
+  --breath: #D6E7F2;          /* plate behind the teddy */
+  --breath-2: #E9F2F8;        /* halo */
+  --breath-edge: #B5CFE0;
+  --teddy-fur: #C9A27E; --teddy-fur-dark: #A88360; --teddy-inner: #E9D3B6; --teddy-muzzle: #F1E2CC; --teddy-photo-bg: #F6D98A;
+  --ring-box: 370px; --ring-r: 163px; --ring-c: 1024.16; --ring-stroke: 9px;
+  --stitch-r: 168px; --stitch-width: 6px; --stitch-dash: 0.5 14;
+  --plate: 316px;
+  --plate-min: 0.78;          /* teddy frame .78 ↔ 1; halo .74 ↔ 1 (1.5 §22.2) */
+  --halo-min: 0.74;
+  --t-title: 700 32px/38px var(--font);
+  --t-button: 700 22px/28px var(--font);
+  /* no text at all on R1–R4 (spec §7). Wizard words are read aloud on touch. Forward button 68px. */
+}
+
+/* ---------------- 13–18 · "90" ---------------- */
+[data-age="teen"] {
+  --ground: #1F2524;
+  --paper: #29302F;
+  --paper-edge: #171C1B;
+  --line: #56615F;            /* geometric outlines */
+  --track: #3A4342;           /* ring track (replaces the stitch) */
+  --ink: #E8E6DF;
+  --ink-2: #A9B0AD;
+  --muted: #7D8885;
+  --stitch: #3A4342;
+  --accent: #A3BFAE;
+  --accent-edge: transparent; /* teen surfaces are flat: 1–1.5px inset outlines instead of paper edges */
+  --on-accent: #1F2524;
+  --breath: rgba(143, 176, 200, 0.28);
+  --ring-stroke: 3px; --stitch-width: 2px;
+  --r-sm: 6px; --r-md: 10px; --r-lg: 12px; --edge-lg: 2px;
+  --t-cue: 500 24px/29px var(--font);
+  --t-phase: 600 24px/31px var(--font);     /* שאיפה / עצירה / נשיפה / עצירה */
+  --t-square-label: 500 16px/21px var(--font);
+  --t-instr: 600 24px/31px var(--font);
+  --t-sentence: 500 32px/42px var(--font);
+  --t-title: 600 28px/34px var(--font);
+}
+
+/* ---------------- parent ---------------- */
+[data-age="parent"] { /* like 6–12; button colors muted 15%; rating 0–10 */ }
+
+/* ---------------- night (run only, 20:00–06:00) ---------------- */
+[data-mode="night"] {
+  --ground: #26201C;
+  --paper: #322A24;
+  --paper-edge: #1C1714;
+  --ink: #CDBEA6;
+  --ink-2: #A3957F;
+  --stitch: #5A4E43;
+  --accent: #C9A46A;
+  --breath: #5D6E80; --breath-2: #6B7B8C; --breath-edge: #46525F;
+  --warm: #A98947; --warm-edge: #7D6634;
+}
+[data-age="kid"][data-mode="night"] {
+  --ground: #2A211B; --breath: #3A2E26; --breath-2: #45372D; --paper-edge: #1F1814; --stitch: #5E4F42;
+}
+[data-age="teen"][data-mode="night"] {
+  --ground: #1E1916; --paper: #3A322B; --line: #574B40; --track: #3A322B; --ink: #CDBEA6; --ink-2: #9C8E79;
+}
+
+/* ---------------- shelter / ממ״ד (run only, wins over night) ---------------- */
+[data-mode="shelter"] {
+  --ground: #0E1211;
+  --band: #1C2423;            /* fixed top row "קודם מגיעים למקום מוגן." */
+  --paper: #172020;
+  --paper-line: #2E3A39;      /* outlines instead of edges: no depth in shelter */
+  --paper-edge: transparent;
+  --ink: #F4F4F0;             /* 17:1 */
+  --ink-2: #BFC7C5;           /* 11:1 */
+  --stitch: #3E4A48;
+  --accent: #F4F4F0;
+  --breath: #BFD3E6; --breath-2: #D3E2F0;
+  --warm: #E2B661;
+  --ring-box: 370px; --ring-r: 163px; --ring-c: 1024.16; --ring-stroke: 7px;
+  --stitch-r: 167px; --stitch-width: 5px; --stitch-dash: 0.5 12.5;
+  --plate: 316px;
+  --art-box: 284px;
+  --run-icon-opacity: 1;
+  --t-sentence: 600 40px/52px var(--font);
+  --t-cue: 600 36px/43px var(--font);
+  --t-phase: 700 32px/42px var(--font);     /* no narrator in shelter, so the word is bigger */
+  --t-instr: 700 32px/42px var(--font);
+}
+
+/* combined age × shelter: the kid and teen kits keep their own ring proportions */
+[data-age="kid"][data-mode="shelter"] {
+  --ring-stroke: 9px; --stitch-r: 168px; --stitch-width: 6px; --stitch-dash: 0.5 14;
+}
+[data-age="teen"][data-mode="shelter"] {
+  --track: #3E4A48; --stitch-width: 4px; /* solid track, no stitch */
+  --t-phase: 600 32px/42px var(--font);
+}

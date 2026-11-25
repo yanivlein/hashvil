@@ -1,0 +1,130 @@
+{
+  "image": "board.webp (also board.jpg / board.png), 1536x1024",
+  "width": 1536,
+  "height": 1024,
+  "stones": [
+    {
+      "x": 0.1673,
+      "y": 0.8867
+    },
+    {
+      "x": 0.2148,
+      "y": 0.8672
+    },
+    {
+      "x": 0.2617,
+      "y": 0.8428
+    },
+    {
+      "x": 0.3066,
+      "y": 0.8125
+    },
+    {
+      "x": 0.3424,
+      "y": 0.7627
+    },
+    {
+      "x": 0.3516,
+      "y": 0.6924
+    },
+    {
+      "x": 0.3268,
+      "y": 0.6299
+    },
+    {
+      "x": 0.2975,
+      "y": 0.5703
+    },
+    {
+      "x": 0.3066,
+      "y": 0.502
+    },
+    {
+      "x": 0.3496,
+      "y": 0.4678
+    },
+    {
+      "x": 0.3984,
+      "y": 0.4619
+    },
+    {
+      "x": 0.446,
+      "y": 0.4814
+    },
+    {
+      "x": 0.4902,
+      "y": 0.5137
+    },
+    {
+      "x": 0.5378,
+      "y": 0.5322
+    },
+    {
+      "x": 0.5866,
+      "y": 0.5332
+    },
+    {
+      "x": 0.6322,
+      "y": 0.5068
+    },
+    {
+      "x": 0.6738,
+      "y": 0.4883
+    },
+    {
+      "x": 0.7292,
+      "y": 0.459
+    },
+    {
+      "x": 0.7747,
+      "y": 0.4346
+    },
+    {
+      "x": 0.8125,
+      "y": 0.4219
+    },
+    {
+      "x": 0.8509,
+      "y": 0.3779
+    },
+    {
+      "x": 0.8646,
+      "y": 0.3105
+    },
+    {
+      "x": 0.8379,
+      "y": 0.249
+    },
+    {
+      "x": 0.8281,
+      "y": 0.1836
+    }
+  ],
+  "start": {
+    "x": 0.1276,
+    "y": 0.9004
+  },
+  "end": {
+    "x": 0.9375,
+    "y": 0.1191
+  },
+  "note": "x,y are fractions of the image width/height. stones[0] is next to the house, stones[23] is the last stone before the campfire. For N stones (N = rounds x players, 4..24) take N points evenly spread along this list by index (interpolate between neighbours). \"end\" is the campfire anchor: place campfire-lit.png centred there (width about 9% of the board width). \"start\" is the doorstep.",
+  "zones": {
+    "house_garden": [
+      0.0,
+      0.27
+    ],
+    "forest": [
+      0.27,
+      0.62
+    ],
+    "stream_bridge": [
+      0.62,
+      0.8
+    ],
+    "hill_campfire": [
+      0.8,
+      1.0
+    ]
+  }
+}
