@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { T, type Face } from '../content';
 import { buzz, reducedMotion } from '../platform';
+import * as sound from '../sound';
 import { FaceIcon } from './icons';
 
 /** motion-spec §1: the rotation that brings each face to the front. Angles accumulate between rolls, so the die always turns forward. */
@@ -10,14 +11,17 @@ let ry = 0;
 const next = (current: number, target: number, turns: number) => Math.ceil(current / 360) * 360 + turns * 360 + target;
 
 /**
- * The die. `rolling` = this face was just rolled in this session: turn 1.2s with ease-out, vibrate once, wait 250ms, onDone.
+ * The die. `rolling` = this face was just rolled in this session: the roll sound and 1.2s of turning with ease-out,
+ * then (the stop) vibrate once and onStop, wait 250ms, onDone.
  * Otherwise (a restore after refresh) it stands on the face at once.
  */
-export function Dice({ face, rolling, onDone, size = 112 }: { face: Face; rolling: boolean; onDone?: () => void; size?: number }) {
+export function Dice({ face, rolling, onStop, onDone, size = 112 }: { face: Face; rolling: boolean; onStop?: () => void; onDone?: () => void; size?: number }) {
   const cube = useRef<HTMLDivElement>(null);
   const [stopped, setStopped] = useState(!rolling);
   const done = useRef(onDone);
   done.current = onDone;
+  const stop = useRef(onStop);
+  stop.current = onStop;
 
   useLayoutEffect(() => {
     const el = cube.current!;
@@ -31,6 +35,7 @@ export function Dice({ face, rolling, onDone, size = 112 }: { face: Face; rollin
     }
     const finish = () => {
       buzz();
+      stop.current?.();
       setStopped(true);
       window.setTimeout(() => done.current?.(), 250);
     };
@@ -42,6 +47,8 @@ export function Dice({ face, rolling, onDone, size = 112 }: { face: Face; rollin
       const t = window.setTimeout(finish, 200);
       return () => window.clearTimeout(t);
     }
+    // the roll sound runs with the turning (1.2s); with reduced motion there is no roll, and no roll sound
+    sound.play('dice');
     // start from where the last roll ended
     el.style.transition = 'none';
     el.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;

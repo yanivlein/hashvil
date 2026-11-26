@@ -3,6 +3,10 @@ import raw from './content/content.trail.he.json';
 export type Reservist = 'father' | 'mother' | 'both' | 'none';
 export type Face = 1 | 2 | 3 | 4 | 5 | 6;
 export type Role = 'child' | 'parent';
+/** S0 "אורך המשחק" (doc 15 §1): short = 2 rounds, medium = 3, long = 4. "סבב X מתוך Y" is unchanged. */
+export type GameLength = 'short' | 'medium' | 'long';
+export const ROUNDS_OF: Record<GameLength, 2 | 3 | 4> = { short: 2, medium: 3, long: 4 };
+export const lengthOf = (rounds: number): GameLength => (rounds <= 2 ? 'short' : rounds >= 4 ? 'long' : 'medium');
 
 export interface CardDef {
   id: string;
@@ -12,13 +16,18 @@ export interface CardDef {
 }
 
 export const T = raw as unknown as {
-  app: { name: string; credit: string };
+  app: { name: string; credit: string[]; fullscreen: string; fullscreenExit: string; mute: string; unmute: string };
   setup: {
     reservistQ: string;
     reservist: Record<Reservist, string>;
     sirensQ: string;
     sirens: { yes: string; no: string };
-    roundsQ: string;
+    lengthQ: string;
+    length: Record<GameLength, string>;
+    lengthHint: string;
+    cardsHint: string;
+    soundQ: string;
+    sound: { on: string; off: string };
     start: string;
     note: string;
   };

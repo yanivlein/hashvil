@@ -1,7 +1,8 @@
 /* =====================================================================
    השביל · the app layer. Components from design/trail/trail.css, on the button's tokens (6–12, day)
    plus trail-tokens.css. The mockups' absolute positions are replaced by a real flex layout.
-   Rules kept: depth = an opaque edge under paper, no blurred shadows, no red, Assistant only, no idle animation.
+   Rules kept: depth = an opaque edge under paper, no blurred shadows, no red, Assistant only. Nothing you press moves at
+   rest; from 1.1 only the landscape on the board moves a little (ambient.css, S2 and S5 only).
    ===================================================================== */
 
 * { box-sizing: border-box; }
@@ -56,6 +57,10 @@ h1, h2, p { margin: 0; }
   .screen:not(.wide) { justify-content: center; }
   .screen:not(.wide) .col { flex: 0 1 auto; min-height: min(100dvh, 844px); }
 }
+/* S0 is the one screen that scrolls when the window is lower than its content (handoff §9/29) */
+.screen.scrolls { overflow-y: auto; height: 100vh; height: 100dvh; }
+/* a phone on its side (under 600 high): the portrait layout in a centred column; it may scroll */
+@media (max-height: 599px) { .screen { overflow-y: auto; height: 100vh; height: 100dvh; } }
 .grow { flex: 1; }
 
 /* ---------- buttons ---------- */
@@ -79,6 +84,19 @@ h1, h2, p { margin: 0; }
 .tiny { display: inline-grid; place-items: center; min-width: 64px; min-height: var(--touch-min); font: var(--t-tag); color: var(--ink-2); flex: none; }
 .tiny--pill > span { display: block; padding: 5px 14px; border-radius: 16px; background: var(--paper); box-shadow: 0 2px 0 var(--paper-edge); }
 .tiny--pill:disabled { opacity: 0.5; }
+/* 1.1: the tiny ones with an icon (mute, full screen): a paper circle of 32, icon 20, touch area 48×48 (C-top-row) */
+.tiny-row { display: flex; align-items: center; }
+.tiny--icon { min-width: var(--touch-min); }
+.tiny--icon > span { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--paper); box-shadow: 0 2px 0 var(--paper-edge); }
+.tiny--icon svg { width: 20px; height: 20px; }
+.tiny--pill:not(:disabled):active > span, .tiny--icon:active > span { transform: translateY(2px); box-shadow: 0 0 0 var(--paper-edge); }
+/* keyboard focus: the ring around the drawing, not around the touch area */
+.tiny:focus-visible { outline: none; }
+.tiny:focus-visible > span { outline: 3px solid var(--accent); outline-offset: 3px; }
+/* "מסך מלא" at the bottom of S0: the pill, with the icon before the words */
+.tiny--pill > span > svg { width: 18px; height: 18px; vertical-align: -3px; margin-inline-end: 6px; }
+/* the mute strike: a paper-coloured gap under the line, so it reads at 20px */
+.ic-gap { stroke: var(--paper); stroke-width: 5.5px; }
 .tiny--link > span { text-decoration: underline dotted; text-underline-offset: 4px; text-decoration-thickness: 2px; }
 
 /* the speaker */
@@ -139,15 +157,14 @@ h1, h2, p { margin: 0; }
   100% { transform: translateY(0); }
 }
 .piece { position: absolute; left: 0; top: 0; height: var(--piece); width: auto; max-width: none; transform: translate(-50%, -97%); }
+/* the halo: positioned (and moved with the hop) by .glow-pos; .glow-at in it pulses around the centre (ambient.css) */
+.glow-pos { position: absolute; left: 0; top: 0; width: 0; height: 0; transition-property: transform; transition-timing-function: var(--ease-flip); animation: fade var(--word-fade-ms) linear both; }
 .glow { position: absolute; left: 0; top: 0; width: calc(var(--piece) * 1.28); height: calc(var(--piece) * 1.28); border-radius: 50%; background: var(--halo);
-  box-shadow: 0 0 0 var(--glow-w, 2.5px) var(--halo-ring), 0 0 0 calc(var(--glow-w, 2.5px) * 3) var(--halo-soft);
-  transition-property: transform; transition-timing-function: var(--ease-flip); animation: fade var(--word-fade-ms) linear both; }
-.fire { position: absolute; width: 10%; height: auto; transform: translate(-50%, -64%); opacity: 0; transition: opacity var(--fire-in-ms) linear; z-index: 1; }
-.fire.is-lit { opacity: 1; }
-.board .overlay { position: absolute; z-index: 2000; direction: rtl; }
-.overlay.at-roll { left: 61%; top: 86%; transform: translate(-50%, -50%); }
-.overlay.at-panel { right: 24px; bottom: 30px; width: 452px; }
-.overlay.at-panel.is-six { width: 480px; }
+  box-shadow: 0 0 0 var(--glow-w, 2.5px) var(--halo-ring), 0 0 0 calc(var(--glow-w, 2.5px) * 3) var(--halo-soft); transform: translate(-50%, -50%); }
+/* the lit fire, its flickering flames and the sparks light up together (motion-spec 4.4): one wrapper fades in */
+.fire-group { position: absolute; inset: 0; opacity: 0; transition: opacity var(--fire-in-ms) linear; z-index: 1; pointer-events: none; }
+.fire-group.is-lit { opacity: 1; }
+.fire { position: absolute; width: 10%; height: auto; transform: translate(-50%, -64%); }
 
 /* ---------- the die ---------- */
 .dice { --size: 112px; position: relative; width: var(--size); height: var(--size); perspective: calc(var(--size) * 7); flex: none; }
@@ -203,15 +220,25 @@ h1, h2, p { margin: 0; }
 .card-back > svg { width: 132px; height: 132px; }
 .card-slot { flex: 1; border-radius: 24px; border: 2.5px dashed var(--stitch); }
 
-/* ---------- S0 ---------- */
-.s0 { padding-top: 44px; }
-.s0-head { display: flex; align-items: center; gap: 18px; }
-.app-icon { width: 64px; height: 64px; border-radius: 16px; box-shadow: 0 3px 0 var(--paper-edge); }
+/* ---------- S0 (1.1, S0-setup): one column in normal flow; it scrolls when the window is low ---------- */
+.s0 { padding: 20px 24px 12px; flex: 1 0 auto; }
+.s0-head { display: flex; align-items: center; gap: 14px; }
+.app-icon { width: 56px; height: 56px; border-radius: 14px; box-shadow: 0 3px 0 var(--paper-edge); }
 .s0-head > h1 { font: var(--t-display); }
-.s0-fields { display: flex; flex-direction: column; gap: 22px; margin-top: 38px; }
-.s0-go { margin-top: 44px; display: flex; flex-direction: column; gap: 14px; }
+.s0-fields { display: flex; flex-direction: column; gap: 18px; margin-top: 18px; }
+.s0-pair { display: flex; flex-direction: column; gap: 14px; }
+.s0-pair > .hint { margin-top: -6px; }
+.hint { margin: 0; font: var(--t-hint); color: var(--ink-2); text-wrap: pretty; }
+/* one-line field: the label on the right, the two-segment control on the left (the "צליל" switch) */
+.field--inline { flex-direction: row; align-items: center; justify-content: space-between; gap: 16px; }
+.field--inline > .seg { flex: none; width: 168px; }
+.s0-go { margin-top: 20px; flex: none; }
 .note { font: var(--t-note); color: var(--ink-2); text-align: center; }
-.credit { margin-top: auto; padding-top: 32px; font: 400 16px/22px var(--font); color: var(--ink-2); text-align: center; }
+.s0-note { margin-top: 12px; }
+.s0-foot { margin-top: auto; padding-top: 12px; display: flex; flex-direction: column; align-items: center; }
+.s0-foot > .tiny { margin: -4px 0 -2px; }
+.credit { font: var(--t-hint); color: var(--ink-2); text-align: center; }
+.nw { white-space: nowrap; }
 
 /* ---------- S1 ---------- */
 .s1 { padding-top: 32px; }
@@ -233,14 +260,35 @@ h1, h2, p { margin: 0; }
 .s2-bottom { flex: 1; display: grid; place-items: center; padding: 16px 0; min-height: 200px; }
 .s2-bottom.is-panel { place-items: end stretch; padding: 16px 16px 24px; }
 
-/* ---------- S2 / S5 tablet ---------- */
-.screen.wide { padding-left: 24px; padding-right: 24px; }
-.tbar { height: 76px; display: flex; align-items: center; justify-content: space-between; flex: none; }
-.tbar .turn--chip > .portrait { --d: 56px; }
-.tbar .turn--chip > .name { font: 700 30px/36px var(--font); max-width: 360px; }
-.tbar-end { display: flex; align-items: center; gap: 4px; }
-.board-area { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding-bottom: 12px; }
+/* ---------- S2 / S5 wide (1.1, handoff §4): side column on the left, the board on the right ---------- */
+.screen.wide { flex-direction: row; direction: ltr; height: 100vh; height: 100dvh; }
+.side { width: var(--side-w); flex: none; padding: 0 16px 24px; display: grid; grid-template-rows: 1fr auto 1fr; direction: rtl; min-height: 0; }
+.side-top { align-self: start; display: flex; flex-direction: column; align-items: center; padding-bottom: 16px; }
+/* in the top-left corner of the screen, 12 from the edge */
+.side-top > .tiny-row { align-self: flex-end; height: 48px; margin: 12px 0 16px; margin-inline-end: -4px; }
+.side-mid { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.side-mid > * { width: 100%; }
+.side-mid > .roll { width: 148px; }
+.side-bottom { align-self: end; text-align: center; }
+.side .round { font: 600 17px/25px var(--font); color: var(--ink-2); }
+.turn--stack { flex-direction: column; gap: 12px; }
+.turn--stack > .portrait { --d: 96px; }
+.turn--stack > .name { max-width: 288px; }
+/* the characters row in the column: 4 as 2 + 2, 5 and 6 in rows of 3 */
+.crow--wrap { flex-wrap: wrap; row-gap: 4px; }
+.crow--wrap > .who { flex: 0 0 calc(100% / var(--per-row, 2)); max-width: none; }
+.board-area { flex: 1; min-width: 0; display: flex; justify-content: center; align-items: center; padding: 16px 16px 16px 0; }
 .wide .board-window { border-radius: 20px; }
+/* a low window (600 to 699, a laptop with the browser bars open): smaller heading, so "מי הבא?" still fits */
+@media (max-height: 699px) {
+  .side { padding-bottom: 16px; }
+  .side-top { padding-bottom: 12px; }
+  .side-top > .tiny-row { margin-bottom: 8px; }
+  .turn--stack { gap: 8px; }
+  .turn--stack > .portrait { --d: 72px; }
+  .turn--stack > .name { font: var(--t-title); }
+  .side .picker { --fig: 84px !important; }
+}
 
 /* ---------- S3 ---------- */
 .chip-row { display: flex; align-items: center; min-height: 72px; flex: none; margin-inline-start: -12px; padding-top: 12px; }
@@ -278,7 +326,7 @@ h1, h2, p { margin: 0; }
 @keyframes rmdisc { 0% { opacity: 0; } 40% { opacity: 1; } 100% { opacity: 0; } }
 
 /* ---------- S5 ---------- */
-.arrived { display: flex; align-items: flex-end; justify-content: center; gap: 2px; height: 132px; padding-bottom: 12px; flex: none; }
+.arrived { display: flex; align-items: flex-end; justify-content: center; gap: 2px; height: 106px; padding-bottom: 10px; flex: none; }
 .arrived > .who { height: 66px; width: auto; }
 .arrived > .campfire { height: 96px; width: auto; margin: 0 4px; }
 .s5-bottom { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 20px 24px 24px; }
@@ -292,13 +340,12 @@ h1, h2, p { margin: 0; }
   .s2-bottom .roll:not(.roll--tablet) { width: 156px; height: 156px; }
   .s2-bottom .picker { --fig: 84px !important; }
   .refuel-line { margin-top: 12px; }
-  .s0 { padding-top: 24px; }
-  .s0-fields { margin-top: 24px; gap: 16px; }
-  .s0-go { margin-top: 28px; }
-  .arrived { height: 100px; padding-bottom: 8px; }
-  .arrived > .who { height: 52px; }
-  .arrived > .campfire { height: 76px; }
-  .s5-bottom { padding: 12px 24px 16px; }
+  .s5 > .bar { margin-top: 4px; }
+  .arrived { height: 78px; padding-bottom: 4px; }
+  .arrived > .who { height: 48px; }
+  .arrived > .campfire { height: 70px; }
+  .s5-bottom { padding: 8px 24px 12px; }
+  .s5-bottom .card--closing { padding-top: 14px; }
   .s5-bottom .closing { gap: 16px; }
   .col.tall { padding-bottom: 12px; }
   .chip-row { min-height: 60px; padding-top: 6px; }
@@ -308,10 +355,20 @@ h1, h2, p { margin: 0; }
   .candle-area .plate { --plate: 250px; --art-box: 225px; }
   .candle-area .plate > svg { left: 12.5px; top: 12.5px; }
 }
+/* S3 below 660 (a laptop window with the browser bars open, 600 to 660): the die area and the card give a little */
+@media (max-height: 660px) {
+  .dice-area { height: 124px; }
+  .chip-row { min-height: 52px; padding-top: 4px; }
+  .card-area { min-height: 240px; }
+  .card { padding: 12px 20px 12px; }
+  .card > .text { padding: 6px 2px; }
+  .card > .foot { min-height: 56px; }
+  .bottom { margin-top: 8px; min-height: 120px; }
+}
 
 /* ---------- reduced motion (motion-spec): no travel, fades stay ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .dice .cube, .piece-at, .glow { transition: none !important; }
+  .dice .cube, .piece-at, .glow-pos { transition: none !important; }
   .arc.is-hopping { animation: none; }
   .breathing .plate, .breathing .c-glow, .breathing .c-flame, .breathing .c-air1, .breathing .c-air2, .breathing .c-air3 { animation: none; }
   .breathing .plate > .rm-disc { display: block; position: absolute; inset: 18%; border-radius: 50%; background: var(--breath); animation: rmdisc 10s cubic-bezier(.45, 0, .55, 1) 0s 2 both; }

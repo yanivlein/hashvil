@@ -66,3 +66,47 @@ export function PlusIcon() {
     </svg>
   );
 }
+
+/** design/trail/icons/ui-fullscreen-enter.svg / ui-fullscreen-exit.svg (grid 24, stroke 2.2) */
+export function FullscreenIcon({ exit }: { exit?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" class="ic" aria-hidden="true">
+      {exit ? (
+        <>
+          <path d="M9.5 4v3.5a2 2 0 0 1-2 2H4" />
+          <path d="M20 9.5h-3.5a2 2 0 0 1-2-2V4" />
+          <path d="M14.5 20v-3.5a2 2 0 0 1 2-2H20" />
+          <path d="M4 14.5h3.5a2 2 0 0 1 2 2V20" />
+        </>
+      ) : (
+        <>
+          <path d="M4 9.5V6a2 2 0 0 1 2-2h3.5" />
+          <path d="M14.5 4H18a2 2 0 0 1 2 2v3.5" />
+          <path d="M20 14.5V18a2 2 0 0 1-2 2h-3.5" />
+          <path d="M9.5 20H6a2 2 0 0 1-2-2v-3.5" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+/**
+ * The tiny mute button (Yaniv's decision on handoff question 8): a music note, so it is not confused with the
+ * read-aloud speaker on the card. Same family as the ui icons (grid 24, stroke 2.2, no fill). Muted = a line across it,
+ * with a paper-coloured gap under the line so the strike reads at 20px.
+ */
+export function MusicIcon({ off }: { off?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" class="ic" aria-hidden="true">
+      <circle cx="7" cy="17.5" r="2.5" />
+      <circle cx="17" cy="15.5" r="2.5" />
+      <path d="M9.5 17.5V6.5L19.5 4.5V15.5" />
+      {off && (
+        <>
+          <path class="ic-gap" d="M4 4L20 20" />
+          <path d="M4 4L20 20" />
+        </>
+      )}
+    </svg>
+  );
+}

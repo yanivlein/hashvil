@@ -8,7 +8,8 @@ export function loadState(): GameState {
     const raw = sessionStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw) as GameState;
-      if (s && s.v === 1 && s.setup) return s;
+      // states saved before 1.1 have no `sound`: on
+      if (s && s.v === 1 && s.setup) return { ...s, sound: s.sound ?? true };
     }
   } catch {
     /* fall through */
@@ -103,3 +104,43 @@ export function stopSpeaking(): void {
 }
 
 export const asset = (p: string) => `${import.meta.env.BASE_URL}assets/${p}`;
+
+// ---------- full screen (doc 15 §2.3): the browser's Fullscreen API, shown only where it works (not on iPhone) ----------
+type FsDoc = Document & { webkitFullscreenEnabled?: boolean; webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => void };
+type FsEl = HTMLElement & { webkitRequestFullscreen?: () => void };
+
+export function fullscreenSupported(): boolean {
+  const d = document as FsDoc;
+  return !!(d.fullscreenEnabled || d.webkitFullscreenEnabled);
+}
+
+export function isFullscreen(): boolean {
+  const d = document as FsDoc;
+  return !!(d.fullscreenElement || d.webkitFullscreenElement);
+}
+
+export function toggleFullscreen(): void {
+  const d = document as FsDoc;
+  try {
+    if (isFullscreen()) {
+      if (d.exitFullscreen) void d.exitFullscreen().catch(() => {});
+      else d.webkitExitFullscreen?.();
+    } else {
+      const el = document.documentElement as FsEl;
+      if (el.requestFullscreen) void el.requestFullscreen().catch(() => {});
+      else el.webkitRequestFullscreen?.();
+    }
+  } catch {
+    /* quiet */
+  }
+}
+
+/** Esc (or the browser's own exit) also updates the icon. */
+export function onFullscreenChange(cb: () => void): () => void {
+  document.addEventListener('fullscreenchange', cb);
+  document.addEventListener('webkitfullscreenchange', cb);
+  return () => {
+    document.removeEventListener('fullscreenchange', cb);
+    document.removeEventListener('webkitfullscreenchange', cb);
+  };
+}

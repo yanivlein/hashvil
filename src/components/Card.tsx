@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { T, type Face } from '../content';
 import type { Player } from '../engine';
 import { reducedMotion } from '../platform';
+import * as sound from '../sound';
 import { DeckBadge, Portrait, Speaker } from './bits';
 import { FaceIcon } from './icons';
 
@@ -53,6 +54,11 @@ export function Card({
   onOther: () => void;
 }) {
   const anim = reveal && !reducedMotion();
+  // the short paper rustle while the card rises and turns (0.3s, over before the flip ends); then silence.
+  // With reduced motion the card only fades in, so there is no rustle either (the silence starts at once)
+  useEffect(() => {
+    if (anim) sound.play('paper');
+  }, []);
   return (
     <div class={`card-stage${reveal && !anim ? ' fade-in' : ''}`}>
       <div class={`riser${anim ? ' is-rising' : ''}`}>

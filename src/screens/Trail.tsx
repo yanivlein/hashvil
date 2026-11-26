@@ -2,7 +2,7 @@ import { useState } from 'preact/hooks';
 import { roundLabel, T } from '../content';
 import { canBeNext, playerById, totalTurns, type GameState, type Player } from '../engine';
 import { Board, type BoardMove } from '../components/Board';
-import { CharacterRow, TurnHeading } from '../components/bits';
+import { CharacterRow, TinyRow, TurnHeading } from '../components/bits';
 
 export interface TrailActions {
   roll: () => void;
@@ -10,6 +10,7 @@ export interface TrailActions {
   askEnd: () => void;
   cancelEnd: () => void;
   confirmEnd: () => void;
+  sound: (on: boolean) => void;
 }
 
 /** "לסיים את הטיול?": a small paper panel in place of "להטיל" (spec 4/S2, 16.4). */
@@ -31,7 +32,11 @@ function ConfirmEnd({ a }: { a: TrailActions }) {
   );
 }
 
-/** S2: the trail. The player whose turn it is is lit; one big button "להטיל"; after a turn, "מי הבא?" over the same screen. */
+/**
+ * S2: the trail. The player whose turn it is is lit; one big button "להטיל"; after a turn, "מי הבא?" in its place.
+ * Wide (1.1, handoff §4): the board on the right at full height, nothing on the picture but stones, pieces and halo;
+ * a side column of 320 on the left with the tiny row and the turn heading, "להטיל" (or the paper panel) and the round.
+ */
 export function Trail({ s, move: moveProp, wide, boardW, a }: { s: GameState; move?: BoardMove; wide: boolean; boardW: number; a: TrailActions }) {
   const [move] = useState(moveProp);
   const [settled, setSettled] = useState(!move);
@@ -44,7 +49,7 @@ export function Trail({ s, move: moveProp, wide, boardW, a }: { s: GameState; mo
   else if (s.trailStep === 'next') {
     action = settled ? (
       <div class="fade-in">
-        <CharacterRow id="q-next" question={T.trail.next} players={s.players} isDim={(p) => !canBeNext(s, p.id)} onPick={(p) => a.chooseNext(p.id)} />
+        <CharacterRow id="q-next" question={T.trail.next} players={s.players} side={wide} isDim={(p) => !canBeNext(s, p.id)} onPick={(p) => a.chooseNext(p.id)} />
       </div>
     ) : null;
   } else
@@ -54,11 +59,7 @@ export function Trail({ s, move: moveProp, wide, boardW, a }: { s: GameState; mo
       </button>
     );
 
-  const endBtn = (
-    <button type="button" class="tiny tiny--pill" onClick={a.askEnd} disabled={s.confirmingEnd} aria-expanded={s.confirmingEnd}>
-      <span>{T.trail.end}</span>
-    </button>
-  );
+  const tiny = <TinyRow sound={s.sound} onSound={a.sound} onEnd={a.askEnd} endOpen={s.confirmingEnd} />;
 
   const board = (
     <Board
@@ -71,21 +72,22 @@ export function Trail({ s, move: moveProp, wide, boardW, a }: { s: GameState; mo
       onSettled={() => setSettled(true)}
       label={label}
       width={wide ? boardW : undefined}
-    >
-      {wide && <div class={`overlay ${s.trailStep === 'roll' && !s.confirmingEnd ? 'at-roll' : 'at-panel'}${s.players.length >= 6 ? ' is-six' : ''}`}>{action}</div>}
-    </Board>
+    />
   );
 
   if (wide) {
     return (
       <main class="screen wide s2">
-        <div class="tbar">
-          <TurnHeading player={current} chip />
-          <div class="tbar-end">
-            <span class="round">{round}</span>
-            {endBtn}
+        <aside class="side">
+          <div class="side-top">
+            {tiny}
+            <TurnHeading player={current} stack />
           </div>
-        </div>
+          <div class="side-mid">{action}</div>
+          <div class="side-bottom">
+            <span class="round">{round}</span>
+          </div>
+        </aside>
         <div class="board-area">{board}</div>
       </main>
     );
@@ -95,7 +97,7 @@ export function Trail({ s, move: moveProp, wide, boardW, a }: { s: GameState; mo
     <main class="screen phone s2">
       <div class="bar">
         <span class="round">{round}</span>
-        {endBtn}
+        {tiny}
       </div>
       <div class="turn-wrap">
         <TurnHeading player={current} />

@@ -1,0 +1,228 @@
+/* =====================================================================
+   השביל · תנועה קטנה על הלוח (מסמך 15, סעיף 4; motion-spec.md, פרק 4)
+   ארבע שכבות שקטות מעל תמונת הלוח, רק במסך השביל (S2) ובמסך הסיום (S5).
+   transform ו-opacity בלבד (יוצא מן הכלל אחד, לפי מסמך 15: הבהירות של להבת המדורה). הכול נעצר ב-prefers-reduced-motion.
+   קווי המים חושבו מ-assets/stream-path.json ומטבלת המסלולים שב-board-layout.json › ambient.water.runs, לפי החישוב שב-motion-spec.md 4.1.
+   אם קובץ הנחל או המסלולים משתנים, מחשבים את נקודות המפתח מחדש באותו חישוב; לא מתקנים מספרים ביד.
+
+   יחידות: 1cqw = אחוז אחד מרוחב הלוח, ולכן .board הוא מכל (container-type: inline-size).
+   נקודה (x, y) מהקובץ, כשברים מהלוח:  translate(x * 100cqw, y * 66.667cqw)   (גובה הלוח = רוחבו / 1.5)
+   שתי התנועות שיושבות על אלמנטים קיימים כתובות כך שלא יתנגשו עם ה-transform שממקם אותם:
+   הנשימה במאפיין translate (ולא ב-transform); הפעימה על עטיפה משלה, בגודל אפס, במרכז ההילה.
+   ===================================================================== */
+
+.board { container-type: inline-size; }
+.ambient { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+@supports not (width: 1cqw) { .ambient, .flame, .sparks { display: none; } }
+
+/* ---------- 1. מים זורמים: שמונה קווים, תמיד בתנועה. כל קו מתחלף בין שני מסלולים ---------- */
+.water > i { position: absolute; left: 0; top: 0; width: 1.5cqw; height: 1.5px; margin: -0.75px 0 0 -0.75cqw; border-radius: 1px; background: var(--ambient); opacity: 0; will-change: transform, opacity; }
+.water > .w1 { animation: water-w1 2.2s linear 0s infinite; }
+@keyframes water-w1 {
+  0.00% { transform: translate(58.14cqw, 20.68cqw) rotate(57.1deg); opacity: 0; }
+  11.82% { opacity: var(--water-opacity); }
+  15.12% { transform: translate(60.63cqw, 22.19cqw) rotate(41.2deg); }
+  32.38% { transform: translate(63.03cqw, 24.41cqw) rotate(32.9deg); }
+  38.41% { opacity: var(--water-opacity); }
+  49.13% { transform: translate(65.87cqw, 25.77cqw) rotate(21.4deg); }
+  59.09% { transform: translate(67.67cqw, 26.70cqw) rotate(33.9deg); opacity: 0; }
+  59.10% { transform: translate(60.21cqw, 23.74cqw) rotate(39.5deg); opacity: 0; }
+  67.27% { opacity: var(--water-opacity); }
+  72.90% { transform: translate(62.14cqw, 25.78cqw) rotate(32.9deg); }
+  85.68% { opacity: var(--water-opacity); }
+  89.64% { transform: translate(65.48cqw, 26.76cqw) rotate(21.4deg); }
+  100.00% { transform: translate(67.39cqw, 27.25cqw) rotate(34.4deg); opacity: 0; }
+}
+.water > .w2 { animation: water-w2 2s linear -1.63s infinite; }
+@keyframes water-w2 {
+  0.00% { transform: translate(61.63cqw, 24.71cqw) rotate(35.4deg); opacity: 0; }
+  5.70% { transform: translate(62.36cqw, 25.45cqw) rotate(32.9deg); }
+  8.00% { opacity: var(--water-opacity); }
+  24.12% { transform: translate(65.57cqw, 26.52cqw) rotate(21.4deg); }
+  26.00% { opacity: var(--water-opacity); }
+  40.00% { transform: translate(68.24cqw, 27.37cqw) rotate(39.5deg); opacity: 0; }
+  40.01% { transform: translate(59.24cqw, 21.19cqw) rotate(50.9deg); opacity: 0; }
+  50.16% { transform: translate(60.77cqw, 22.03cqw) rotate(41.2deg); }
+  52.00% { opacity: var(--water-opacity); }
+  69.15% { transform: translate(63.17cqw, 24.20cqw) rotate(32.9deg); }
+  79.00% { opacity: var(--water-opacity); }
+  87.57% { transform: translate(65.93cqw, 25.62cqw) rotate(21.4deg); }
+  100.00% { transform: translate(67.95cqw, 26.75cqw) rotate(35.6deg); opacity: 0; }
+}
+.water > .w3 { animation: water-w3 3.1s linear -2.36s infinite; }
+@keyframes water-w3 {
+  0.00% { transform: translate(72.65cqw, 37.07cqw) rotate(53.5deg); opacity: 0; }
+  7.26% { transform: translate(74.41cqw, 37.88cqw) rotate(43.2deg); }
+  10.97% { opacity: var(--water-opacity); }
+  19.32% { transform: translate(77.10cqw, 39.32cqw) rotate(33.1deg); }
+  31.30% { transform: translate(79.77cqw, 41.02cqw) rotate(29.4deg); }
+  35.65% { opacity: var(--water-opacity); }
+  43.16% { transform: translate(82.35cqw, 42.99cqw) rotate(27.1deg); }
+  54.84% { transform: translate(85.31cqw, 44.32cqw) rotate(28.0deg); opacity: 0; }
+  54.85% { transform: translate(79.62cqw, 45.39cqw) rotate(28.0deg); opacity: 0; }
+  59.58% { transform: translate(80.84cqw, 45.94cqw) rotate(27.1deg); }
+  63.87% { opacity: var(--water-opacity); }
+  71.88% { transform: translate(83.98cqw, 47.17cqw) rotate(28.0deg); }
+  83.70% { transform: translate(86.42cqw, 49.06cqw) rotate(34.3deg); }
+  84.19% { opacity: var(--water-opacity); }
+  95.81% { transform: translate(89.46cqw, 50.84cqw) rotate(28.3deg); }
+  100.00% { transform: translate(90.55cqw, 51.27cqw) rotate(27.8deg); opacity: 0; }
+}
+.water > .w4 { animation: water-w4 3.4s linear -2.29s infinite; }
+@keyframes water-w4 {
+  0.00% { transform: translate(72.63cqw, 41.41cqw) rotate(40.2deg); opacity: 0; }
+  7.70% { transform: translate(74.40cqw, 43.45cqw) rotate(33.1deg); }
+  11.18% { opacity: var(--water-opacity); }
+  18.61% { transform: translate(77.65cqw, 44.78cqw) rotate(29.4deg); }
+  29.43% { transform: translate(80.74cqw, 46.13cqw) rotate(27.1deg); }
+  36.32% { opacity: var(--water-opacity); }
+  40.64% { transform: translate(83.89cqw, 47.35cqw) rotate(28.0deg); }
+  51.42% { transform: translate(86.29cqw, 49.25cqw) rotate(34.3deg); }
+  55.88% { transform: translate(87.54cqw, 49.97cqw) rotate(31.8deg); opacity: 0; }
+  55.89% { transform: translate(85.72cqw, 45.33cqw) rotate(29.3deg); opacity: 0; }
+  64.50% { transform: translate(88.02cqw, 46.72cqw) rotate(34.3deg); }
+  64.71% { opacity: var(--water-opacity); }
+  75.54% { transform: translate(90.60cqw, 48.73cqw) rotate(28.3deg); }
+  84.56% { opacity: var(--water-opacity); }
+  86.38% { transform: translate(93.65cqw, 49.90cqw) rotate(26.9deg); }
+  97.35% { transform: translate(96.69cqw, 51.70cqw) rotate(41.1deg); }
+  100.00% { transform: translate(97.13cqw, 52.45cqw) rotate(43.2deg); opacity: 0; }
+}
+.water > .w5 { animation: water-w5 3.3s linear -1.82s infinite; }
+@keyframes water-w5 {
+  0.00% { transform: translate(77.67cqw, 42.06cqw) rotate(30.9deg); opacity: 0; }
+  4.50% { transform: translate(78.84cqw, 42.67cqw) rotate(29.4deg); }
+  9.09% { opacity: var(--water-opacity); }
+  15.64% { transform: translate(81.64cqw, 44.37cqw) rotate(27.1deg); }
+  27.20% { transform: translate(84.77cqw, 45.69cqw) rotate(28.0deg); }
+  29.55% { opacity: var(--water-opacity); }
+  38.30% { transform: translate(87.50cqw, 47.48cqw) rotate(34.3deg); }
+  45.45% { transform: translate(89.22cqw, 48.70cqw) rotate(30.5deg); opacity: 0; }
+  45.46% { transform: translate(72.37cqw, 39.53cqw) rotate(44.9deg); opacity: 0; }
+  46.59% { transform: translate(72.56cqw, 39.86cqw) rotate(43.2deg); }
+  56.36% { opacity: var(--water-opacity); }
+  57.92% { transform: translate(75.10cqw, 42.38cqw) rotate(33.1deg); }
+  69.17% { transform: translate(78.20cqw, 43.80cqw) rotate(29.4deg); }
+  80.31% { transform: translate(81.16cqw, 45.32cqw) rotate(27.1deg); }
+  80.91% { opacity: var(--water-opacity); }
+  91.87% { transform: translate(84.30cqw, 46.58cqw) rotate(28.0deg); }
+  100.00% { transform: translate(86.17cqw, 47.94cqw) rotate(32.6deg); opacity: 0; }
+}
+.water > .w6 { animation: water-w6 3.5s linear -1.65s infinite; }
+@keyframes water-w6 {
+  0.00% { transform: translate(83.54cqw, 42.92cqw) rotate(27.4deg); opacity: 0; }
+  7.63% { transform: translate(85.71cqw, 43.92cqw) rotate(28.0deg); }
+  10.29% { opacity: var(--water-opacity); }
+  18.09% { transform: translate(88.79cqw, 45.58cqw) rotate(34.3deg); }
+  28.82% { transform: translate(91.15cqw, 47.70cqw) rotate(28.3deg); }
+  33.43% { opacity: var(--water-opacity); }
+  39.35% { transform: translate(94.18cqw, 48.84cqw) rotate(26.9deg); }
+  50.00% { transform: translate(97.58cqw, 50.68cqw) rotate(41.1deg); }
+  51.43% { transform: translate(97.76cqw, 51.20cqw) rotate(42.3deg); opacity: 0; }
+  51.44% { transform: translate(75.92cqw, 40.53cqw) rotate(34.1deg); opacity: 0; }
+  52.50% { transform: translate(76.18cqw, 40.73cqw) rotate(33.1deg); }
+  61.14% { opacity: var(--water-opacity); }
+  63.10% { transform: translate(79.05cqw, 42.30cqw) rotate(29.4deg); }
+  73.61% { transform: translate(81.80cqw, 44.06cqw) rotate(27.1deg); }
+  83.00% { opacity: var(--water-opacity); }
+  84.50% { transform: translate(84.93cqw, 45.40cqw) rotate(28.0deg); }
+  94.97% { transform: translate(87.72cqw, 47.16cqw) rotate(34.3deg); }
+  100.00% { transform: translate(88.97cqw, 48.08cqw) rotate(31.4deg); opacity: 0; }
+}
+.water > .w7 { animation: water-w7 3.6s linear -1.38s infinite; }
+@keyframes water-w7 {
+  0.00% { transform: translate(86.31cqw, 48.69cqw) rotate(33.6deg); opacity: 0; }
+  1.02% { transform: translate(86.55cqw, 48.87cqw) rotate(34.3deg); }
+  7.78% { opacity: var(--water-opacity); }
+  11.45% { transform: translate(89.56cqw, 50.67cqw) rotate(28.3deg); }
+  21.68% { transform: translate(92.64cqw, 51.89cqw) rotate(26.9deg); }
+  25.28% { opacity: var(--water-opacity); }
+  32.04% { transform: translate(95.00cqw, 53.64cqw) rotate(41.1deg); }
+  38.89% { transform: translate(96.84cqw, 54.69cqw) rotate(46.7deg); opacity: 0; }
+  38.90% { transform: translate(74.95cqw, 43.88cqw) rotate(32.4deg); opacity: 0; }
+  47.14% { transform: translate(77.57cqw, 44.93cqw) rotate(29.4deg); }
+  51.11% { opacity: var(--water-opacity); }
+  57.35% { transform: translate(80.68cqw, 46.26cqw) rotate(27.1deg); }
+  67.94% { transform: translate(83.83cqw, 47.47cqw) rotate(28.0deg); }
+  78.12% { transform: translate(86.21cqw, 49.38cqw) rotate(34.3deg); }
+  78.61% { opacity: var(--water-opacity); }
+  88.55% { transform: translate(89.31cqw, 51.12cqw) rotate(28.3deg); }
+  98.78% { transform: translate(92.40cqw, 52.36cqw) rotate(26.9deg); }
+  100.00% { transform: translate(92.66cqw, 52.57cqw) rotate(28.5deg); opacity: 0; }
+}
+.water > .w8 { animation: water-w8 2.9s linear -0.31s infinite; }
+@keyframes water-w8 {
+  0.00% { transform: translate(90.27cqw, 48.64cqw) rotate(28.9deg); opacity: 0; }
+  1.29% { transform: translate(90.54cqw, 48.84cqw) rotate(28.3deg); }
+  7.59% { opacity: var(--water-opacity); }
+  14.00% { transform: translate(93.59cqw, 50.01cqw) rotate(26.9deg); }
+  24.66% { opacity: var(--water-opacity); }
+  26.86% { transform: translate(96.59cqw, 51.82cqw) rotate(41.1deg); }
+  37.93% { transform: translate(98.18cqw, 54.36cqw) rotate(48.4deg); opacity: 0; }
+  37.94% { transform: translate(83.99cqw, 45.73cqw) rotate(27.8deg); opacity: 0; }
+  40.56% { transform: translate(84.61cqw, 45.99cqw) rotate(28.0deg); }
+  50.34% { opacity: var(--water-opacity); }
+  53.19% { transform: translate(87.28cqw, 47.80cqw) rotate(34.3deg); }
+  66.14% { transform: translate(90.08cqw, 49.70cqw) rotate(28.3deg); }
+  78.28% { opacity: var(--water-opacity); }
+  78.84% { transform: translate(93.14cqw, 50.89cqw) rotate(26.9deg); }
+  91.70% { transform: translate(95.84cqw, 52.67cqw) rotate(41.1deg); }
+  100.00% { transform: translate(97.32cqw, 54.17cqw) rotate(46.6deg); opacity: 0; }
+}
+
+/* ---------- 2. עשן מהארובה: שלוש פקעות, בזו אחר זו ---------- */
+.smoke > i { position: absolute; left: 4.7%; top: 60%; width: 1%; aspect-ratio: 1 / 1; border-radius: 50%; background: var(--ambient); opacity: 0;
+  animation: smoke var(--smoke-s) linear infinite; will-change: transform, opacity; }
+.smoke > i:nth-child(2) { animation-delay: calc(var(--smoke-s) / -3); }
+.smoke > i:nth-child(3) { animation-delay: calc(var(--smoke-s) / -1.5); }
+/* קוטר 1% מרוחב הלוח (רדיוס 0.5%), גדל פי 2. העלייה, 4% מגובה הלוח, היא 266.67% מגובה הפקעה עצמה */
+@keyframes smoke {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+  5% { opacity: var(--smoke-opacity); }
+  100% { transform: translate(-50%, -316.67%) scale(2); opacity: 0; }
+}
+
+/* ---------- 3. הדמויות נושמות, וההילה של מי שבתור פועמת ---------- */
+/* על תמונת הדמות עצמה. --i = מספר השחקן (מ-0): כל דמות בפאזה אחרת. translate הוא היסט חיצוני, ולכן לא נוגע ב-transform של התמונה ושל העטיפות שלה */
+.piece.bob { animation: bob var(--bob-s) ease-in-out infinite; animation-delay: calc(var(--bob-s) / -6 * var(--i, 0)); }
+@keyframes bob { 0%, 100% { translate: 0 var(--bob); } 50% { translate: 0 calc(var(--bob) * -1); } }
+/* .halo-pulse היא עטיפה בגודל אפס שיושבת על מרכז ההילה; ההילה (.glow) בתוכה, ממורכזת עליה. כך ה-scale הוא סביב מרכז ההילה, והיא לא זזה מהמקום */
+.glow-at { position: absolute; width: 0; height: 0; }
+.glow-at > .glow { left: 0; top: 0; }
+.halo-pulse { animation: halo-pulse var(--halo-pulse-s) ease-in-out infinite; }
+@keyframes halo-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.06); opacity: 0.8; } }
+
+/* ---------- 4. המדורה בסיום: הלהבות מהבהבות, שלושה ניצוצות עולים ---------- */
+/* .flame הוא עותק שני של campfire-lit.png, באותו מקום ובאותו גודל כמו .fire, שממנו נראות רק הלהבות (מסכה). רק הוא מהבהב: האבנים והבולים לא זזים.
+   ה-scale הוא הפעולה הפנימית ב-transform, סביב בסיס הלהבה (transform-origin), ורק אחריו ההיסט שמעגן את התמונה: כך הלהבה גדלה במקומה */
+.flame { position: absolute; width: 10%; height: auto; transform: translate(-50%, -64%); transform-origin: 50% 62%; pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 24% 29% at 50% 38%, #000 72%, transparent 100%); mask-image: radial-gradient(ellipse 24% 29% at 50% 38%, #000 72%, transparent 100%);
+  animation: flame var(--flame-s) steps(1, end) infinite; }
+@keyframes flame {
+  0% { transform: translate(-50%, -64%) scale(1); filter: brightness(1); }
+  10% { transform: translate(-50%, -64%) scale(1.03); filter: brightness(1.06); }
+  22% { transform: translate(-50%, -64%) scale(1.01); filter: brightness(1.02); }
+  35% { transform: translate(-50%, -64%) scale(1.04); filter: brightness(1.08); }
+  46% { transform: translate(-50%, -64%) scale(1.015); filter: brightness(1.03); }
+  60% { transform: translate(-50%, -64%) scale(1.035); filter: brightness(1.07); }
+  72% { transform: translate(-50%, -64%) scale(1.005); filter: brightness(1.01); }
+  86% { transform: translate(-50%, -64%) scale(1.025); filter: brightness(1.05); }
+}
+/* .sparks ממוקם על נקודת end (כמו .fire); כל ניצוץ יוצא מראש הלהבה ועולה 3% מגובה הלוח (2cqw) */
+.sparks { position: absolute; width: 0; height: 0; pointer-events: none; }
+.sparks > i { position: absolute; width: 3px; height: 3px; margin: -1.5px 0 0 -1.5px; border-radius: 50%; background: var(--spark); opacity: 0;
+  animation: spark var(--spark-s) linear infinite; will-change: transform, opacity; }
+.sparks > i:nth-child(1) { left: -0.9cqw; top: -4.4cqw; --drift: -0.3cqw; animation-delay: 0s; }
+.sparks > i:nth-child(2) { left: 0.3cqw; top: -4.9cqw; --drift: 0.25cqw; animation-delay: -0.6s; }
+.sparks > i:nth-child(3) { left: 1.1cqw; top: -4.2cqw; --drift: 0.4cqw; animation-delay: -1.2s; }
+@keyframes spark {
+  0% { transform: translate(0, 0); opacity: 0; }
+  5% { opacity: 0.8; }
+  83.33%, 100% { transform: translate(var(--drift, 0), -2cqw); opacity: 0; }
+}
+
+/* ---------- reduced motion: הכול נעצר. הלוח נשאר התמונה, האבנים, הדמויות, ההילה והמדורה, בלי תנועה ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .ambient, .flame, .sparks { display: none; }
+  .piece.bob, .halo-pulse { animation: none; }
+}

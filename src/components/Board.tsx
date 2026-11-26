@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
-import type { ComponentChildren } from 'preact';
 import { END, feetAtFire, feetOnStone, groupAt, pickStones, pieceHeight, type Pt } from '../board';
 import type { Player } from '../engine';
 import { asset, reducedMotion } from '../platform';
+import * as sound from '../sound';
 import { charSrc } from './bits';
 
 /** In-memory only (never persisted): what the board should animate when it mounts. A refresh shows the final state. */
@@ -16,6 +16,9 @@ export interface BoardMove {
 
 /**
  * The board: board.webp + stones + pieces + halo (+ the lit campfire in S5).
+ * 1.1: the small motion of the landscape (motion-spec §4, ambient.css): water and smoke over the picture and under the
+ * stones; the pieces breathe and the halo pulses; at the end the flames flicker and three sparks rise. CSS only, stopped
+ * entirely by prefers-reduced-motion. Layer order: picture, water + smoke, stones, fire group, halo, pieces.
  * Stage of the timeline: 0 = everyone at fromPos, 1 = hopper at pos, 2 = everyone at pos, 3 = at the fire, 4 = fire lit.
  */
 export function Board({
@@ -28,7 +31,6 @@ export function Board({
   onSettled,
   label,
   width,
-  children,
 }: {
   players: Player[];
   stonesCount: number;
@@ -38,9 +40,8 @@ export function Board({
   move?: BoardMove;
   onSettled?: () => void;
   label: string;
-  /** fixed width in px (tablet); otherwise the board fills its container width */
+  /** fixed width in px (wide layout); otherwise the board fills its container width */
   width?: number;
-  children?: ComponentChildren;
 }) {
   const box = useRef<HTMLDivElement>(null);
   // frozen at mount: later renders must not lose the animation plan
@@ -66,14 +67,15 @@ export function Board({
   useEffect(() => {
     if (!move) return;
     if (!anim) {
-      // reduced motion: no travel, things just appear in the new place (the fire still fades in)
+      // reduced motion: no travel, things just appear in the new place (the fire still fades in). The pop still sounds
+      if (move.hopperId) sound.play('pop');
       const t = window.setTimeout(() => settled.current?.(), atFire ? 1000 : 200);
       return () => window.clearTimeout(t);
     }
     const steps: Array<[number, () => void]> = [];
     let t = 0;
     if (move.hopperId) {
-      steps.push([30, () => setStage(1)]);
+      steps.push([30, () => (sound.play('pop'), setStage(1))]);
       t = 30 + 500;
       steps.push([t, () => setStage(2)]);
       t += 600;
@@ -130,18 +132,43 @@ export function Board({
       {W > 0 && (
         <div class="board" style={{ width: `${W}px`, height: `${H}px` }}>
           <img class="bg" src={asset('board.webp')} alt="" draggable={false} />
+          <div class="ambient water" aria-hidden="true">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <i key={i} class={`w${i}`} />
+            ))}
+          </div>
+          <div class="ambient smoke" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </div>
           {stones.map((s, i) => (
             <span key={i} class="stone" style={{ left: `${s.x * 100}%`, top: `${s.y * 100}%` }} />
           ))}
+          {atFire && (
+            <div class={`fire-group${stage >= 4 ? ' is-lit' : ''}`}>
+              <img class="fire" src={asset('campfire-lit.png')} alt="" draggable={false} style={{ left: `${END.x * 100}%`, top: `${END.y * 100}%` }} />
+              <img class="flame" src={asset('campfire-lit.png')} alt="" aria-hidden="true" draggable={false} style={{ left: `${END.x * 100}%`, top: `${END.y * 100}%` }} />
+              <div class="sparks" aria-hidden="true" style={{ left: `${END.x * 100}%`, top: `${END.y * 100}%` }}>
+                <i />
+                <i />
+                <i />
+              </div>
+            </div>
+          )}
           {haloFeet && (
             <span
               key={haloId}
-              class="glow"
+              class="glow-pos"
               style={{
-                transform: `translate(${haloFeet.x}px, ${haloFeet.y - 0.5 * ph - 0.004 * H}px) translate(-50%, -50%)`,
+                transform: `translate(${haloFeet.x}px, ${haloFeet.y - 0.5 * ph - 0.004 * H}px)`,
                 transitionDuration: anim && hopping ? 'var(--hop-ms)' : '0ms',
               }}
-            />
+            >
+              <span class="glow-at halo-pulse">
+                <span class="glow" />
+              </span>
+            </span>
           )}
           {players.map((p, i) => {
             const f = feetOf(i, p.id);
@@ -158,21 +185,11 @@ export function Board({
                 }}
               >
                 <span class={`arc${isHopper ? ' is-hopping' : ''}`}>
-                  <img class="piece" src={charSrc(p.animal)} alt="" draggable={false} />
+                  <img class="piece bob" src={charSrc(p.animal)} alt="" draggable={false} style={{ '--i': i }} />
                 </span>
               </span>
             );
           })}
-          {atFire && (
-            <img
-              class={`fire${stage >= 4 ? ' is-lit' : ''}`}
-              src={asset('campfire-lit.png')}
-              alt=""
-              draggable={false}
-              style={{ left: `${END.x * 100}%`, top: `${END.y * 100}%` }}
-            />
-          )}
-          {children}
         </div>
       )}
     </div>

@@ -44,6 +44,8 @@ export interface GameState {
   turn?: TurnState;
   /** per deck: the remaining card ids, in draw order */
   decks: Record<string, string[]>;
+  /** doc 15 §3.2: sounds and music on (the S0 switch and the tiny speaker). Kept with the game; default on */
+  sound: boolean;
 }
 
 export type Rng = () => number;
@@ -63,6 +65,7 @@ export function initialState(): GameState {
     trailStep: 'roll',
     confirmingEnd: false,
     decks: {},
+    sound: true,
   };
 }
 
@@ -99,9 +102,11 @@ export function draw(s: GameState, face: Face, rng: Rng, avoid?: string): { stat
 
 // ---------- S0 / S1 ----------
 
-export function startCharacters(s: GameState, setup: Setup): GameState {
-  return { ...s, setup, phase: 'characters' };
+export function startCharacters(s: GameState, setup: Setup, sound = s.sound): GameState {
+  return { ...s, setup, sound, phase: 'characters' };
 }
+
+export const setSound = (s: GameState, sound: boolean): GameState => ({ ...s, sound });
 
 /** S1 "יוצאים לדרך": the first player added starts (handoff §9/15). */
 export function startTrail(s: GameState, players: Player[]): GameState {

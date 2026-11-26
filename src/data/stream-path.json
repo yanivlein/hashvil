@@ -1,0 +1,120 @@
+{
+ "image": "board.webp 1536x1024",
+ "note": "Centerline of the stream from where it appears below the hills (point 1, top) to the bottom-right edge (point 20). x,y are fractions of the board width/height; w is the approximate stream width at that point, as a fraction of the board width. The bridge crosses the stream around y 0.45-0.50.",
+ "points": [
+  {
+   "x": 0.5894,
+   "y": 0.2246,
+   "w": 0.011
+  },
+  {
+   "x": 0.5708,
+   "y": 0.2646,
+   "w": 0.0082
+  },
+  {
+   "x": 0.5762,
+   "y": 0.3096,
+   "w": 0.0181
+  },
+  {
+   "x": 0.6022,
+   "y": 0.3399,
+   "w": 0.0417
+  },
+  {
+   "x": 0.6263,
+   "y": 0.3755,
+   "w": 0.0497
+  },
+  {
+   "x": 0.6569,
+   "y": 0.3933,
+   "w": 0.0322
+  },
+  {
+   "x": 0.6863,
+   "y": 0.4108,
+   "w": 0.0111
+  },
+  {
+   "x": 0.7012,
+   "y": 0.4521,
+   "w": 0.0
+  },
+  {
+   "x": 0.7012,
+   "y": 0.5029,
+   "w": 0.0
+  },
+  {
+   "x": 0.7106,
+   "y": 0.5488,
+   "w": 0.0161
+  },
+  {
+   "x": 0.7331,
+   "y": 0.5859,
+   "w": 0.0733
+  },
+  {
+   "x": 0.7591,
+   "y": 0.6171,
+   "w": 0.0986
+  },
+  {
+   "x": 0.7884,
+   "y": 0.6401,
+   "w": 0.0862
+  },
+  {
+   "x": 0.8164,
+   "y": 0.6656,
+   "w": 0.0705
+  },
+  {
+   "x": 0.8477,
+   "y": 0.6854,
+   "w": 0.067
+  },
+  {
+   "x": 0.875,
+   "y": 0.7122,
+   "w": 0.0766
+  },
+  {
+   "x": 0.9023,
+   "y": 0.7412,
+   "w": 0.0647
+  },
+  {
+   "x": 0.9329,
+   "y": 0.759,
+   "w": 0.0658
+  },
+  {
+   "x": 0.9609,
+   "y": 0.7858,
+   "w": 0.0755
+  },
+  {
+   "x": 0.9826,
+   "y": 0.8242,
+   "w": 0.0238
+  }
+ ],
+ "bridge": {
+  "hidden_points": [
+   7,
+   8,
+   9,
+   10
+  ],
+  "note": "the wooden bridge in the image covers the stream between points 7 and 10: do not draw the water animation there"
+ },
+ "chimney": {
+  "x": 0.047,
+  "y": 0.6,
+  "note": "top of the house chimney; smoke rises from here"
+ }
+}

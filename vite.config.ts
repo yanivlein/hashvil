@@ -34,7 +34,7 @@ export default defineConfig({
       },
       workbox: {
         // everything is precached: after the first load the site makes no network calls
-        globPatterns: ['**/*.{js,css,html,woff2,png,webp,svg,json}'],
+        globPatterns: ['**/*.{js,css,html,woff2,png,webp,svg,json,mp3}'],
         navigateFallback: base + 'index.html',
         cleanupOutdatedCaches: true,
         clientsClaim: true,

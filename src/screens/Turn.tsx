@@ -2,6 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { cardText, T } from '../content';
 import { conditionsOf, openCard, playerById, type GameState, type Player } from '../engine';
 import { reducedMotion } from '../platform';
+import * as sound from '../sound';
 import { CharacterRow, TurnHeading } from '../components/bits';
 import { Card } from '../components/Card';
 import { Candle } from '../components/Candle';
@@ -99,7 +100,7 @@ export function Turn({ s, rolled: rolledProp, a }: { s: GameState; rolled: boole
           <TurnHeading player={roller} chip />
         </div>
         <div class="dice-area">
-          <Dice face={t.face} rolling={rolled} onDone={afterRoll} />
+          <Dice face={t.face} rolling={rolled} onStop={() => t.face !== 6 && sound.music(false, 500)} onDone={afterRoll} />
         </div>
         <div class="card-area">{slot}</div>
         <div class={`bottom${stage === 'reveal' ? ' after-flip' : ''}`}>
